@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+}
+
+enum JobType {
+  QUICK_BOOK
+  POST_AND_QUOTE
+}
+
+enum JobStatus {
+  OPEN
+  BOOKED
+  CANCELLED
+  COMPLETED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String
+  password       String
+  role           Role
+  rating         Float?
+  jobHistory     Int?
+  isAvailable    Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  jobsCreated    Job[]    @relation("CustomerJobs")
+  jobsAccepted   Job[]    @relation("ProviderJobs")
+  bids           Bid[]
+  ratings        Rating[]
+}
+
+model Job {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  category    String
+  type        JobType
+  status      JobStatus
+  price       Float
+  acceptPrice Float?
+  scheduledAt DateTime
+  createdAt   DateTime   @default(now())
+
+  customer    User     @relation("CustomerJobs", fields: [customerId], references: [id])
+  customerId  String
+
+  provider    User?    @relation("ProviderJobs", fields: [providerId], references: [id])
+  providerId  String?
+
+  bids        Bid[]
+  escrow      Escrow?
+}
+
+model Bid {
+  id          String   @id @default(uuid())
+  price       Float
+  note        String?
+  eta         Int
+  createdAt   DateTime @default(now())
+
+  provider    User     @relation(fields: [providerId], references: [id])
+  providerId  String
+
+  job         Job      @relation(fields: [jobId], references: [id])
+  jobId       String
+
+  @@unique([providerId, jobId])
+}
+
+model Escrow {
+  id          String        @id @default(uuid())
+  amount      Float
+  status      EscrowStatus
+  createdAt   DateTime      @default(now())
+
+  job         Job           @relation(fields: [jobId], references: [id])
+  jobId       String        @unique
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  score       Int
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  provider    User     @relation(fields: [providerId], references: [id])
+  providerId  String
+
+  jobId       String
+}
