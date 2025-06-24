@@ -1,25 +1,23 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private userRepository: UserRepository) {}
 
   async register(dto: CreateUserDto): Promise<string> {
-    const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const exists = await this.userRepository.findByEmail(dto.email);
     if (exists) throw new BadRequestException('Email already registered');
 
     const hashed = await bcrypt.hash(dto.password, 10);
 
-    await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        password: hashed,
-        role: dto.role,
-      },
+    await this.userRepository.createUser({
+      email: dto.email,
+      name: dto.name,
+      password: hashed,
+      role: dto.role,
     });
 
     return 'User registered';

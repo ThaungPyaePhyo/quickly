@@ -40,6 +40,10 @@ backend-prisma-generate:
 backend-seed:
 	docker exec -it backend npm run seed
 
+studio:
+	docker exec -it backend npx prisma studio
+
+
 # ---------- Frontend ----------
 frontend-build:
 	docker build -t quickly-frontend ./frontend
@@ -57,3 +61,4 @@ prod-down:
 # ---------- Misc ----------
 clean:
 	docker system prune -f
+
