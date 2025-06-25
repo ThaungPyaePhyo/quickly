@@ -11,6 +11,7 @@ export class AuthController {
   async login(@Body() dto: LoginUserDto, @Req() req: any) {
     const user = await this.authService.validateUser(dto.email, dto.password);
     req.session.userId = user.id;
+    req.session.user = { role: user.role };
     return { message: 'Login successful', user };
   }
 

@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
+import { User } from 'generated/prisma';
 
 @Injectable()
 export class UserService {
@@ -21,5 +22,9 @@ export class UserService {
     });
 
     return 'User registered';
+  }
+
+  async findById(id: string): Promise<User | null> {
+    return this.userRepository.findById(id);
   }
 }

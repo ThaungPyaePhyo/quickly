@@ -1,6 +1,7 @@
 # Node modules
 node_modules/
 cookie.txt
+note.txt
 
 # Logs
 logs/
