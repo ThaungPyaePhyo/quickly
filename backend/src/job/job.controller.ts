@@ -45,4 +45,10 @@ export class JobController {
         return this.jobService.deleteJob(id);
     }
 
+    @UseGuards(SessionAuthGuard, new RoleGuard('PROVIDER'))
+    @Patch(':id/complete')
+    async completeJob(@Param('id') id: string, @Req() req: any) {
+        return this.jobService.completeJob(id, req.session.userId);
+    }
+
 } 
