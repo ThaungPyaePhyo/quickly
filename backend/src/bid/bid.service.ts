@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { BidRepository } from './bid.repository';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { Bid, JobStatus } from '../../generated/prisma';
-import { JobRepository } from 'src/job/job.repository';
+import { JobRepository } from '../job/job.repository';
 
 @Injectable()
 export class BidService {
