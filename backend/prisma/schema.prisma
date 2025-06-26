@@ -28,6 +28,7 @@ enum JobType {
 enum JobStatus {
   OPEN
   BOOKED
+  ASSIGNED
   CANCELLED
   COMPLETED
 }

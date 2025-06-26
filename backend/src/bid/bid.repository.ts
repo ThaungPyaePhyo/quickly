@@ -21,4 +21,8 @@ export class BidRepository {
     async findByJobId(jobId: string): Promise<Bid[]> {
         return this.prisma.bid.findMany({ where: { jobId } });
     }
+
+    async findById(id: string): Promise<Bid | null> {
+        return this.prisma.bid.findUnique({ where: { id } });
+    }
 }
