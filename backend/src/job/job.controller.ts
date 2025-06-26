@@ -45,5 +45,4 @@ export class JobController {
         return this.jobService.deleteJob(id);
     }
 
-
 } 
