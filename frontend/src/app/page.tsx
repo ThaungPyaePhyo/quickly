@@ -8,14 +8,14 @@ export default function Home() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader>
           <div className="flex flex-col items-center gap-2">
-            {/* <Image
+            <Image
               src="/next.svg"
               alt="Next.js logo"
               width={120}
               height={30}
               className="mb-2"
               priority
-            /> */}
+            />
             <CardTitle className="text-2xl font-bold text-blue-600">
               Welcome to Quickly
             </CardTitle>

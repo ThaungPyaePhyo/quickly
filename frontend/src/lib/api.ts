@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost/api';
 
 function getCookie(name: string): string | undefined {
   if (typeof document === 'undefined') return undefined;
@@ -11,12 +11,12 @@ function getCookie(name: string): string | undefined {
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: HeadersInit;
-  body?: any;
+  body?: unknown;
   cache?: RequestCache;
   next?: NextFetchRequestConfig;
 };
 
-export async function api<T = any>(
+export async function api<T = unknown>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
@@ -38,10 +38,25 @@ export async function api<T = any>(
     next,
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.message || `API error: ${res.status}`);
+  console.log('response status:', res.status);
+
+if (!res.ok) {
+  let errorMsg = `API error: ${res.status}`;
+  console.log('API error response:', res);
+  try {
+    const error = await res.json();
+    errorMsg = error.message || errorMsg;
+  } catch {
+    // If response is not JSON (e.g., HTML error page)
+    const text = await res.text();
+    if (text.startsWith('<!DOCTYPE')) {
+      errorMsg = 'Server returned an HTML error page. Check your API URL and backend.';
+    } else {
+      errorMsg = text || errorMsg;
+    }
   }
+  throw new Error(errorMsg);
+}
 
   return res.json();
 }

@@ -5,32 +5,41 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useMutation } from '@tanstack/react-query';
-import { register } from '@/api/register';
+import { createJob } from '@/api/job';
 
-export default function RegisterPage() {
+export default function NewJobPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'CUSTOMER' | 'PROVIDER'>('CUSTOMER');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
+  const [type, setType] = useState<'QUICK_BOOK' | 'POST_AND_QUOTE'>('QUICK_BOOK');
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => register(email, password, name, role),
-    onSuccess: () => router.push('/login'),
+    mutationFn: () =>
+      createJob({
+        title,
+        description,
+        price: Number(price),
+        category,
+        type,
+      }),
+    onSuccess: () => router.push('/jobs'),
     onError: (err: unknown) => {
-      if (err instanceof Error) setError(err.message || 'Registration failed');
-      else setError('Registration failed');
+      if (err instanceof Error) setError(err.message || 'Job creation failed');
+      else setError('Job creation failed');
     },
   });
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100">
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-lg shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-blue-600 text-center">
-            Register for Quickly
+            Post a New Job
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -44,51 +53,57 @@ export default function RegisterPage() {
           >
             <Input
               type="text"
-              placeholder="Name"
-              value={name}
-              onChange={e => setName(e.target.value)}
+              placeholder="Title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              required
+            />
+            <Textarea
+              placeholder="Description"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
               required
             />
             <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              type="number"
+              placeholder="Price"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
               required
             />
             <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              type="text"
+              placeholder="Category"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
               required
             />
             <div className="flex gap-4">
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
-                  name="role"
-                  value="CUSTOMER"
-                  checked={role === 'CUSTOMER'}
-                  onChange={() => setRole('CUSTOMER')}
+                  name="type"
+                  value="QUICK_BOOK"
+                  checked={type === 'QUICK_BOOK'}
+                  onChange={() => setType('QUICK_BOOK')}
                   className="accent-blue-600"
                 />
-                Customer
+                Quick Book
               </label>
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
-                  name="role"
-                  value="PROVIDER"
-                  checked={role === 'PROVIDER'}
-                  onChange={() => setRole('PROVIDER')}
+                  name="type"
+                  value="POST_AND_QUOTE"
+                  checked={type === 'POST_AND_QUOTE'}
+                  onChange={() => setType('POST_AND_QUOTE')}
                   className="accent-blue-600"
                 />
-                Provider
+                Post & Quote
               </label>
             </div>
             <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Registering...' : 'Register'}
+              {mutation.isPending ? 'Posting...' : 'Post Job'}
             </Button>
             {error && <div className="text-red-600 text-center">{error}</div>}
           </form>
