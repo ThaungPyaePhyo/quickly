@@ -6,11 +6,21 @@ export type Job = {
   description: string;
   price: number;
   category?: string;
-  type?: 'QUICK_BOOK' | 'CUSTOM_BOOK';
+  type?: 'QUICK_BOOK' | 'POST_AND_QUOTE';
+  acceptPrice?: number;
   createdAt: string;
   updatedAt: string;
   _count?: {
     bids: number;}
+};
+
+export type Bid = {
+  id: string;
+  price: number;
+  note?: string;
+  provider?: { id: string; name: string };
+  createdAt: string;
+  // Add other fields as needed
 };
 
 export async function fetchJobs(): Promise<Job[]> {
@@ -21,5 +31,27 @@ export async function createJob(data: Omit<Job, 'id'>) {
   return api<Job>('/job/create', {
     method: 'POST',
     body: data,
+  });
+}
+
+export async function fetchJobById(id: string): Promise<Job> {
+  return api<Job>(`/job/${id}`);
+}
+
+export async function fetchBidsForJob(jobId: string): Promise<Bid[]> {
+  return api<Bid[]>(`/bid/job/${jobId}`);
+}
+
+
+export async function submitBid(jobId: string, data: { price: number; note?: string }) {
+  return api<Bid>(`/bid`, {
+    method: 'POST',
+    body: { ...data, jobId },
+  });
+}
+
+export async function acceptQuickBookJob(jobId: string) {
+  return api(`/job/${jobId}/accept`, {
+    method: 'POST',
   });
 }
