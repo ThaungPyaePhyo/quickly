@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/components/AuthGuard';
 import './globals.css';
 import { Providers } from './providers';
 import { NavWrapper } from '@/components/NavWrapper';
@@ -7,8 +8,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Providers>
+          <AuthGuard>
           <NavWrapper />
           {children}
+          </AuthGuard>
         </Providers>
       </body>
     </html>
