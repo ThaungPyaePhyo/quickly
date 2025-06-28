@@ -16,7 +16,6 @@ export class RatingService {
     if (job.status !== 'COMPLETED') throw new BadRequestException('Job not completed');
     if (!job.providerId) throw new BadRequestException('No provider for this job');
 
-    // Prevent double rating
     const existing = await this.ratingRepository.findByJobAndProvider(jobId, job.providerId);
     if (existing) throw new BadRequestException('Already rated');
 

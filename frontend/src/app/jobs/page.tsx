@@ -22,15 +22,17 @@ export default function JobListPage() {
     queryFn: fetchJobs,
   });
 
-  const filteredJobs = (userRole === 'CUSTOMER'
-    ? jobs?.filter(job => job.customerId === user?.id)
-    : jobs
-  )?.filter(
-    job =>
+const filteredJobs = (userRole === 'CUSTOMER'
+  ? jobs?.filter(job => job.customerId === user?.id)
+  : jobs
+)?.filter(
+  job =>
+    (
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       (job.description && job.description.toLowerCase().includes(search.toLowerCase())) ||
       (job.category && job.category.name.toLowerCase().includes(search.toLowerCase()))
-  );
+    )
+);
 
   return (
     <main className="flex flex-col items-center min-h-screen">
@@ -72,6 +74,17 @@ export default function JobListPage() {
                         ${job.acceptPrice}
                       </div>
                     )}
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-xs font-semibold rounded px-2 py-1
+                      ${job.status === 'OPEN' ? 'bg-green-100 text-green-700' : ''}
+                      ${job.status === 'BOOKED' ? 'bg-blue-100 text-blue-700' : ''}
+                      ${job.status === 'ASSIGNED' ? 'bg-yellow-100 text-yellow-700' : ''}
+                      ${job.status === 'COMPLETED' ? 'bg-zinc-200 text-zinc-600' : ''}
+                      ${job.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : ''}
+                    `}>
+                      {job.status}
+                    </span>
                   </div>
                   <div className="text-zinc-600 mb-2 line-clamp-1">{job.description}</div>
                   {job.scheduledAt && (

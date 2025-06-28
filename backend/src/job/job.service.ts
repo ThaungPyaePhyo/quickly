@@ -7,7 +7,7 @@ import { Job, JobStatus } from 'generated/prisma';
 export class JobService {
     constructor(private jobRepository: JobRepository) { }
 
-      async createJob(dto: CreateJobDto, customerId: string): Promise<Job> {
+    async createJob(dto: CreateJobDto, customerId: string): Promise<Job> {
         let acceptUntil: Date | undefined = undefined;
         if (dto.type === 'QUICK_BOOK') {
             acceptUntil = new Date(Date.now() + 30 * 1000);
@@ -51,10 +51,24 @@ export class JobService {
     }
 
     async acceptQuickBookJob(jobId: string, providerId: string) {
-            console.log('Updating job', jobId, 'with providerId', providerId);
+          const job = await this.jobRepository.findById(jobId);
+        if (!job) throw new NotFoundException('Job not found');
+        if (job.status !== JobStatus.OPEN) throw new ForbiddenException('Job is not open');
+        if (job.acceptUntil && new Date() > new Date(job.acceptUntil)) {
+            throw new ForbiddenException('Acceptance window expired');
+        }
         return this.jobRepository.updateJob(jobId, {
             providerId,
             status: JobStatus.BOOKED,
         });
+    }
+
+    async cancelJob(id: string, userId: string): Promise<Job> {
+        const job = await this.jobRepository.findById(id);
+        if (!job) throw new NotFoundException('Job not found');
+        if (job.customerId !== userId && job.providerId !== userId) {
+            throw new ForbiddenException('Not authorized to cancel this job');
+        }
+        return this.jobRepository.updateJob(id, { status: JobStatus.CANCELLED });
     }
 }

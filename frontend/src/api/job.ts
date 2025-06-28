@@ -61,3 +61,15 @@ export async function acceptBid(bidId: string) {
     method: 'PATCH',
   });
 }
+
+export async function cancelJob(jobId: string) {
+  return api(`/job/${jobId}/cancel`, {
+    method: 'PATCH',
+  });
+}
+
+export async function completeJob(jobId: string) {
+  return api(`/job/${jobId}/complete`, {
+    method: 'PATCH',
+  });
+}

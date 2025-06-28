@@ -2,19 +2,14 @@
 
 import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchJobById, fetchBidsForJob, submitBid, acceptQuickBookJob, acceptBid } from '@/api/job';
+import { fetchJobById, fetchBidsForJob, submitBid, acceptQuickBookJob, acceptBid, cancelJob, completeJob } from '@/api/job';
 import { fetchMe } from '@/api/user';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import RatingForm from '@/components/RatingFrom'; // <-- Import your rating form
-import { useState, useEffect } from 'react';
+import RatingForm from '@/components/RatingFrom';
+import { useState } from 'react';
+import { getJobRatings } from '@/api/rating';
 
-// Dummy fetch function for ratings, replace with your real API call
-async function fetchJobRatings(jobId: string) {
-  const res = await fetch(`/api/rating/job/${jobId}`);
-  if (!res.ok) return [];
-  return res.json();
-}
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -35,12 +30,11 @@ export default function JobDetailPage() {
     enabled: !!id,
   });
 
-  // Fetch ratings for this job
-  const { data: ratings } = useQuery({
-    queryKey: ['ratings', id],
-    queryFn: () => fetchJobRatings(id),
-    enabled: !!id,
-  });
+ const { data: ratings } = useQuery({
+  queryKey: ['ratings', id],
+  queryFn: () => getJobRatings(id),
+  enabled: !!id,
+});
 
   const [bidPrice, setBidPrice] = useState('');
   const [bidNote, setBidNote] = useState('');
@@ -56,7 +50,7 @@ export default function JobDetailPage() {
       return Math.max(0, Math.floor((until - now) / 1000));
     },
     enabled: !!job?.acceptUntil && job.status === 'OPEN' && userRole === 'PROVIDER' && job.type === 'QUICK_BOOK',
-    refetchInterval: 1000, // update every second
+    refetchInterval: 1000,
   });
 
   const userBid = bids?.find(bid => bid.providerId === user?.id);
@@ -93,6 +87,22 @@ export default function JobDetailPage() {
     },
   });
 
+  // Cancel job mutation (customer or provider)
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelJob(job.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['job', id] });
+    },
+  });
+
+  // Complete job mutation (provider)
+  const completeMutation = useMutation({
+    mutationFn: () => completeJob(job.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['job', id] });
+    },
+  });
+
   if (jobLoading) return <div>Loading...</div>;
   if (!job) return <div>Job not found.</div>;
 
@@ -100,6 +110,7 @@ export default function JobDetailPage() {
     ratings &&
     job.providerId &&
     ratings.some((r: any) => r.providerId === job.providerId);
+
 
   return (
     <main className="flex flex-col items-center min-h-screen">
@@ -128,10 +139,17 @@ export default function JobDetailPage() {
               <span className="font-semibold">Accept Price:</span> ${job.acceptPrice}
             </div>
           )}
+          {/* Show status */}
+          {job.status === 'CANCELLED' && (
+            <div className="text-red-600 font-semibold mt-2">This job has been cancelled.</div>
+          )}
+          {job.status === 'COMPLETED' && (
+            <div className="text-green-600 font-semibold mt-2">This job is completed.</div>
+          )}
         </CardContent>
       </Card>
 
-
+      {/* QUICK_BOOK: Customer view */}
       {userRole === 'CUSTOMER' && job.type === 'QUICK_BOOK' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -152,7 +170,7 @@ export default function JobDetailPage() {
                 })
                 : 'Not set'}
             </div>
-            {job.status === 'BOOKED' ? (
+            {job.status === 'BOOKED' && (
               <div className="text-green-600 font-semibold">
                 Provider accepted your job!
                 {job.provider && (
@@ -161,15 +179,37 @@ export default function JobDetailPage() {
                   </div>
                 )}
               </div>
-            ) : (
+            )}
+            {job.status === 'OPEN' && (
               <div className="text-blue-600 font-semibold">
                 Waiting for provider to accept...
               </div>
             )}
+            {job.status === 'COMPLETED' && (
+              <div className="text-green-600 font-semibold">
+                This job is completed.
+              </div>
+            )}
+            {job.status === 'CANCELLED' && (
+              <div className="text-red-600 font-semibold">
+                This job has been cancelled.
+              </div>
+            )}
+            {/* Cancel button for customer */}
+            {(job.status === 'OPEN' || job.status === 'BOOKED') && (
+              <Button
+                variant="destructive"
+                className="mt-4"
+                onClick={() => cancelMutation.mutate()}
+                disabled={cancelMutation.isPending}
+              >
+                {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Job'}
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
-
+      {/* QUICK_BOOK: Provider view */}
       {userRole === 'PROVIDER' && job.type === 'QUICK_BOOK' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -209,6 +249,15 @@ export default function JobDetailPage() {
                 <div className="text-xs text-zinc-500 text-center">
                   First provider to accept wins!
                 </div>
+                {/* Cancel button for provider */}
+                <Button
+                  variant="destructive"
+                  className="mt-4"
+                  onClick={() => cancelMutation.mutate()}
+                  disabled={cancelMutation.isPending}
+                >
+                  {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Job'}
+                </Button>
               </>
             ) : (
               <div className="text-red-600 font-semibold text-center">Job filled</div>
@@ -217,6 +266,7 @@ export default function JobDetailPage() {
         </Card>
       )}
 
+      {/* POST_AND_QUOTE: Provider view */}
       {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -259,6 +309,7 @@ export default function JobDetailPage() {
         </Card>
       )}
 
+      {/* POST_AND_QUOTE: Customer view (bids and assign) */}
       {userRole === 'CUSTOMER' &&
         user?.id === job.customerId &&
         job.type === 'POST_AND_QUOTE' &&
@@ -290,12 +341,41 @@ export default function JobDetailPage() {
                           </Button>
                         )}
                         {job.providerId === bid.providerId && job.status === 'ASSIGNED' && (
-                          <span className="text-green-600 text-xs mt-1">Accepted</span>
+                          <>
+                            <span className="text-green-600 text-xs mt-1">Accepted</span>
+                            {/* Cancel button for customer */}
+                            <Button
+                              variant="destructive"
+                              className="mt-2"
+                              onClick={() => cancelMutation.mutate()}
+                              disabled={cancelMutation.isPending}
+                            >
+                              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Job'}
+                            </Button>
+                          </>
                         )}
                       </li>
                     ))}
                 </ul>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+      {userRole === 'PROVIDER' &&
+        (
+          (job.type === 'POST_AND_QUOTE' && job.status === 'ASSIGNED' && job.providerId === user?.id) ||
+          (job.type === 'QUICK_BOOK' && job.status === 'BOOKED' && job.providerId === user?.id)
+        ) && (
+          <Card className="w-full max-w-xl mt-4">
+            <CardContent>
+              <Button
+                className="w-full"
+                onClick={() => completeMutation.mutate()}
+                disabled={completeMutation.isPending}
+              >
+                {completeMutation.isPending ? 'Completing...' : 'Mark as Completed'}
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -317,6 +397,25 @@ export default function JobDetailPage() {
             </CardContent>
           </Card>
         )}
+
+      {/* Display rating after submission */}
+      {job.status === 'COMPLETED' && ratings && ratings.length > 0 && (
+        <Card className="w-full max-w-xl mt-4">
+          <CardContent>
+            <h2 className="font-semibold mb-2">Your Rating</h2>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-yellow-500 text-lg">
+                {'★'.repeat(ratings[0].score)}
+                {'☆'.repeat(5 - ratings[0].score)}
+              </span>
+              <span className="ml-2 text-zinc-700">{ratings[0].score} / 5</span>
+            </div>
+            {ratings[0].comment && (
+              <div className="mt-2 text-zinc-600 italic">"{ratings[0].comment}"</div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </main>
   );
 }
