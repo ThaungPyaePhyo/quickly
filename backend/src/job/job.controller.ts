@@ -3,7 +3,7 @@ import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
-import { Job } from 'generated/prisma';
+import { Job } from 'generated/prisma'; 
 import { UpdateJobDto } from './dto/update-job.dto';
 
 @Controller('job')
@@ -49,6 +49,13 @@ export class JobController {
     @Patch(':id/complete')
     async completeJob(@Param('id') id: string, @Req() req: any) {
         return this.jobService.completeJob(id, req.session.userId);
+    }
+
+    @UseGuards(SessionAuthGuard, new RoleGuard('PROVIDER'))
+    @Post(':id/accept')
+    async acceptQuickBookJob(@Param('id') id: string, @Req() req) {
+        const providerId = req.session.userId;
+        return this.jobService.acceptQuickBookJob(id, providerId);
     }
 
 } 

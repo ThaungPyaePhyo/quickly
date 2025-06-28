@@ -21,4 +21,8 @@ export class CreateJobDto {
   @IsOptional()
   @IsNumber()
   acceptPrice?: number;
+
+  @IsOptional()
+  @IsString()
+  acceptUntil?: Date;
 }

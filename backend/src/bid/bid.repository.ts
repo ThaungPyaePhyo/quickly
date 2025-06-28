@@ -13,7 +13,7 @@ export class BidRepository {
                 provider: { connect: { id: data.providerId } },
                 price: data.price,
                 note: data.note,
-                eta: data.eta,
+                eta: data.eta ?? 0,
             },
         });
     }

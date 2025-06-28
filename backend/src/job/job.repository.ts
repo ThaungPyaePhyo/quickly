@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Job, JobType, JobStatus } from '../../generated/prisma';
+import { Job, JobType, JobStatus } from 'generated/prisma'; // Adjust the import path as necessary
 
 @Injectable()
 export class JobRepository {
@@ -15,6 +15,7 @@ export class JobRepository {
         price: number;
         acceptPrice?: number;
         scheduledAt: Date;
+        acceptUntil?: Date;
         customerId: string;
     }): Promise<Job> {
         return this.prisma.job.create({
@@ -26,6 +27,7 @@ export class JobRepository {
                 price: data.price,
                 acceptPrice: data.acceptPrice,
                 scheduledAt: data.scheduledAt,
+                acceptUntil: data.acceptUntil,
                 customer: { connect: { id: data.customerId } },
                 category: { connect: { id: data.categoryId } },
             },
@@ -40,13 +42,16 @@ export class JobRepository {
                     select: { bids: true },
                 },
             },
+            orderBy: {
+                scheduledAt: 'desc', 
+            }
         });
     }
 
     async findById(id: string): Promise<Job | null> {
         return this.prisma.job.findUnique({
             where: { id },
-            include: { category: true }, 
+            include: { category: true, provider: true }, 
         });
     }
 

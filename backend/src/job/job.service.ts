@@ -1,21 +1,27 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { JobRepository } from './job.repository';
 import { CreateJobDto } from './dto/create-job.dto';
-import { Job, JobStatus } from '../../generated/prisma';
+import { Job, JobStatus } from 'generated/prisma';
 
 @Injectable()
 export class JobService {
     constructor(private jobRepository: JobRepository) { }
 
-    async createJob(dto: CreateJobDto, customerId: string): Promise<Job> {
+      async createJob(dto: CreateJobDto, customerId: string): Promise<Job> {
+        let acceptUntil: Date | undefined = undefined;
+        if (dto.type === 'QUICK_BOOK') {
+            acceptUntil = new Date(Date.now() + 30 * 1000);
+        }
         return this.jobRepository.createJob({
             ...dto,
             status: JobStatus.OPEN,
             scheduledAt: new Date(),
+            acceptUntil: acceptUntil,
             customerId,
             categoryId: dto.categoryId,
         });
     }
+
 
     async findAll(): Promise<Job[]> {
         return this.jobRepository.findAll();
@@ -42,5 +48,13 @@ export class JobService {
         if (!job) throw new NotFoundException('Job not found');
         if (job.providerId !== providerId) throw new ForbiddenException('Not your job');
         return this.jobRepository.updateJob(id, { status: JobStatus.COMPLETED });
+    }
+
+    async acceptQuickBookJob(jobId: string, providerId: string) {
+            console.log('Updating job', jobId, 'with providerId', providerId);
+        return this.jobRepository.updateJob(jobId, {
+            providerId,
+            status: JobStatus.BOOKED,
+        });
     }
 }

@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
   binaryTargets = ["native"]
 }
 
@@ -71,6 +70,7 @@ model Job {
   price       Float
   acceptPrice Float?
   scheduledAt DateTime
+  acceptUntil DateTime?
   createdAt   DateTime   @default(now())
 
   categoryId  String
@@ -90,7 +90,7 @@ model Bid {
   id          String   @id @default(uuid())
   price       Float
   note        String?
-  eta         Int
+  eta         Int?
   createdAt   DateTime @default(now())
 
   provider    User     @relation(fields: [providerId], references: [id])

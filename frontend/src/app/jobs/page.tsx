@@ -22,11 +22,14 @@ export default function JobListPage() {
     queryFn: fetchJobs,
   });
 
-  const filteredJobs = jobs?.filter(
+  const filteredJobs = (userRole === 'CUSTOMER'
+    ? jobs?.filter(job => job.customerId === user?.id)
+    : jobs
+  )?.filter(
     job =>
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       (job.description && job.description.toLowerCase().includes(search.toLowerCase())) ||
-      (job.category && job.category.toLowerCase().includes(search.toLowerCase()))
+      (job.category && job.category.name.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -42,9 +45,11 @@ export default function JobListPage() {
               onChange={e => setSearch(e.target.value)}
               className="border px-3 py-2 rounded w-40"
             />
-            <Button asChild>
-              <Link href="/jobs/new">+ Post a Job</Link>
-            </Button>
+            {userRole === 'CUSTOMER' && (
+              <Button asChild>
+                <Link href="/jobs/new">+ Post a Job</Link>
+              </Button>
+            )}
           </div>
         </div>
         <div className="h-px bg-blue-100 w-full mb-4" />
@@ -69,6 +74,11 @@ export default function JobListPage() {
                     )}
                   </div>
                   <div className="text-zinc-600 mb-2 line-clamp-1">{job.description}</div>
+                  {job.scheduledAt && (
+                    <div className="text-xs text-zinc-400">
+                      Scheduled: {new Date(job.scheduledAt).toLocaleString()}
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     {job.category && (
                       <span className="inline-block bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded mr-2">
@@ -80,9 +90,11 @@ export default function JobListPage() {
                         {job.type}
                       </span>
                     )}
-                    <span className="text-xs text-zinc-500 ml-auto">
-                      {job._count?.bids ?? 0} bid{(job._count?.bids ?? 0) === 1 ? '' : 's'}
-                    </span>
+                    {job.type === 'POST_AND_QUOTE' && (
+                      <span className="text-xs text-zinc-500 ml-auto">
+                        {job._count?.bids ?? 0} bid{(job._count?.bids ?? 0) === 1 ? '' : 's'}
+                      </span>
+                    )}
                     {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && (
                       <Button
                         size="sm"

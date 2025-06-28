@@ -26,13 +26,14 @@ export default function NewJobPage() {
         queryFn: fetchCategories,
     });
 
+
     const mutation = useMutation({
         mutationFn: () =>
             createJob({
                 title,
                 description,
                 price: Number(price),
-                category,
+                categoryId: category,
                 type,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),

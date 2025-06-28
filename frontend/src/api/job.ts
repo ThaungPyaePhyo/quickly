@@ -5,7 +5,7 @@ export type Job = {
   title: string;
   description: string;
   price: number;
-  category?: string;
+  categoryId?: string;
   type?: 'QUICK_BOOK' | 'POST_AND_QUOTE';
   acceptPrice?: number;
   createdAt: string;
@@ -53,5 +53,11 @@ export async function submitBid(jobId: string, data: { price: number; note?: str
 export async function acceptQuickBookJob(jobId: string) {
   return api(`/job/${jobId}/accept`, {
     method: 'POST',
+  });
+}
+
+export async function acceptBid(bidId: string) {
+  return api(`/bid/${bidId}/accept`, {
+    method: 'PATCH',
   });
 }
