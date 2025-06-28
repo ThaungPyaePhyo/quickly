@@ -9,6 +9,8 @@ export type Job = {
   type?: 'QUICK_BOOK' | 'CUSTOM_BOOK';
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    bids: number;}
 };
 
 export async function fetchJobs(): Promise<Job[]> {

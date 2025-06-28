@@ -33,8 +33,8 @@ export default function JobListPage() {
                     <div className="text-blue-600 font-bold text-base">${job.price}</div>
                   )}
                 </div>
-                <div className="text-zinc-600 mb-2">{job.description}</div>
-                <div>
+                <div className="text-zinc-600 mb-2 line-clamp-3">{job.description}</div>
+                <div className="flex items-center gap-2">
                   {job.category && (
                     <span className="inline-block bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded mr-2">
                       {job.category}
@@ -45,6 +45,9 @@ export default function JobListPage() {
                       {job.type}
                     </span>
                   )}
+                  <span className="text-xs text-zinc-500 ml-auto">
+                    {job._count?.bids ?? 0} bid{(job._count?.bids ?? 0) === 1 ? '' : 's'}
+                  </span>
                 </div>
               </CardContent>
             </Card>

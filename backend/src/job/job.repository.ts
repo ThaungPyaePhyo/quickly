@@ -32,8 +32,14 @@ export class JobRepository {
         });
     }
 
-    async findAll(): Promise<Job[]> {
-        return this.prisma.job.findMany();
+    async findAll(): Promise<any[]> {
+        return this.prisma.job.findMany({
+            include: {
+                _count: {
+                    select: { bids: true },
+                },
+            },
+        });
     }
 
     async findById(id: string): Promise<Job | null> {
