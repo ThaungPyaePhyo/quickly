@@ -56,17 +56,25 @@ model User {
   ratings        Rating[]
 }
 
+model JobCategory {
+  id    String @id @default(uuid())
+  name  String @unique
+  jobs  Job[]
+}
+
 model Job {
   id          String     @id @default(uuid())
   title       String
   description String?
-  category    String
   type        JobType
   status      JobStatus
   price       Float
   acceptPrice Float?
   scheduledAt DateTime
   createdAt   DateTime   @default(now())
+
+  categoryId  String
+  category    JobCategory @relation(fields: [categoryId], references: [id])
 
   customer    User     @relation("CustomerJobs", fields: [customerId], references: [id])
   customerId  String

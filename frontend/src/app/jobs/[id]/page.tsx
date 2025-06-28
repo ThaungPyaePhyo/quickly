@@ -39,7 +39,13 @@ export default function JobDetailPage() {
       refetchBids();
       queryClient.invalidateQueries({ queryKey: ['job', id] });
     },
-    onError: (err: any) => setError(err.message || 'Failed to submit bid'),
+    onError: (err: unknown) => {
+  if (err && typeof err === 'object' && 'message' in err) {
+    setError((err as { message: string }).message);
+  } else {
+    setError('Failed to submit bid');
+  }
+},
   });
 
   if (jobLoading) return <div>Loading...</div>;
@@ -52,7 +58,7 @@ export default function JobDetailPage() {
           <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
           <div className="mb-2 text-zinc-600">{job.description}</div>
           <div className="mb-2">
-            <span className="font-semibold">Category:</span> {job.category}
+            <span className="font-semibold">Category:</span> {job.category.name}
           </div>
           <div className="mb-2">
             <span className="font-semibold">Type:</span> {job.type}

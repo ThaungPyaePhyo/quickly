@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useMutation } from '@tanstack/react-query';
 import { createJob } from '@/api/job';
+import { useQuery } from '@tanstack/react-query';
+import { fetchCategories } from '@/api/category';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 
 export default function NewJobPage() {
     const router = useRouter();
@@ -15,8 +18,13 @@ export default function NewJobPage() {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('');
-    const [type, setType] = useState<'QUICK_BOOK' | 'CUSTOM_BOOK'>('QUICK_BOOK');
+    const [type, setType] = useState<'QUICK_BOOK' | 'POST_AND_QUOTE'>('QUICK_BOOK');
     const [error, setError] = useState<string | null>(null);
+
+    const { data: categories = [], isLoading: loadingCategories } = useQuery({
+        queryKey: ['categories'],
+        queryFn: fetchCategories,
+    });
 
     const mutation = useMutation({
         mutationFn: () =>
@@ -73,13 +81,18 @@ export default function NewJobPage() {
                             onChange={e => setPrice(e.target.value)}
                             required
                         />
-                        <Input
-                            type="text"
-                            placeholder="Category"
-                            value={category}
-                            onChange={e => setCategory(e.target.value)}
-                            required
-                        />
+                        <Select value={category} onValueChange={setCategory} required>
+                            <SelectTrigger className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <SelectValue placeholder="Select Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map(cat => (
+                                    <SelectItem key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <div className="flex gap-4">
                             <label className="flex items-center gap-2">
                                 <input
@@ -96,12 +109,12 @@ export default function NewJobPage() {
                                 <input
                                     type="radio"
                                     name="type"
-                                    value="CUSTOM_BOOK"
-                                    checked={type === 'CUSTOM_BOOK'}
-                                    onChange={() => setType('CUSTOM_BOOK')}
+                                    value="POST_AND_QUOTE"
+                                    checked={type === 'POST_AND_QUOTE'}
+                                    onChange={() => setType('POST_AND_QUOTE')}
                                     className="accent-blue-600"
                                 />
-                                Custom Book
+                                Post and Quote
                             </label>
                         </div>
                         <Button type="submit" className="w-full" disabled={mutation.isPending}>

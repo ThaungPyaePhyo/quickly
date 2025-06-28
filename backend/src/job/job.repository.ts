@@ -9,7 +9,7 @@ export class JobRepository {
     async createJob(data: {
         title: string;
         description?: string;
-        category: string;
+        categoryId: string;
         type: JobType;
         status: JobStatus;
         price: number;
@@ -21,13 +21,13 @@ export class JobRepository {
             data: {
                 title: data.title,
                 description: data.description,
-                category: data.category,
                 type: data.type,
                 status: data.status,
                 price: data.price,
                 acceptPrice: data.acceptPrice,
                 scheduledAt: data.scheduledAt,
                 customer: { connect: { id: data.customerId } },
+                category: { connect: { id: data.categoryId } },
             },
         });
     }
@@ -35,6 +35,7 @@ export class JobRepository {
     async findAll(): Promise<any[]> {
         return this.prisma.job.findMany({
             include: {
+                category: true, 
                 _count: {
                     select: { bids: true },
                 },
@@ -43,7 +44,10 @@ export class JobRepository {
     }
 
     async findById(id: string): Promise<Job | null> {
-        return this.prisma.job.findUnique({ where: { id } });
+        return this.prisma.job.findUnique({
+            where: { id },
+            include: { category: true }, 
+        });
     }
 
     async updateJob(id: string, data: Partial<Job>): Promise<Job> {

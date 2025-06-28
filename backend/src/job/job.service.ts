@@ -13,6 +13,7 @@ export class JobService {
             status: JobStatus.OPEN,
             scheduledAt: new Date(),
             customerId,
+            categoryId: dto.categoryId,
         });
     }
 

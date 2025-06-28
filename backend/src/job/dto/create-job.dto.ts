@@ -10,7 +10,7 @@ export class CreateJobDto {
   description?: string;
 
   @IsString()
-  category: string;
+  categoryId: string;
 
   @IsEnum(JobType)
   type: JobType;

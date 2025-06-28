@@ -72,7 +72,7 @@ export default function JobListPage() {
                   <div className="flex items-center gap-2">
                     {job.category && (
                       <span className="inline-block bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded mr-2">
-                        {job.category}
+                        {job.category.name}
                       </span>
                     )}
                     {job.type && (
