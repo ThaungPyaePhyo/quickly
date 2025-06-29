@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { JobRepository } from './job.repository';
 import { CreateJobDto } from './dto/create-job.dto';
-import { Job, JobStatus } from 'generated/prisma';
+import { Job, JobStatus } from '../../generated/prisma';
 
 @Injectable()
 export class JobService {
@@ -35,12 +35,6 @@ export class JobService {
         const job = await this.jobRepository.findById(id);
         if (!job) throw new NotFoundException('Job not found');
         return this.jobRepository.updateJob(id, data);
-    }
-
-    async deleteJob(id: string): Promise<Job> {
-        const job = await this.jobRepository.findById(id);
-        if (!job) throw new NotFoundException('Job not found');
-        return this.jobRepository.deleteJob(id);
     }
 
     async completeJob(id: string, providerId: string): Promise<Job> {

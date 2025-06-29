@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import RatingForm from '@/components/RatingFrom';
 import { useState } from 'react';
 import { getJobRatings } from '@/api/rating';
+import Link from 'next/link';
 
 
 export default function JobDetailPage() {
@@ -113,7 +114,7 @@ export default function JobDetailPage() {
 
 
   return (
-    <main className="flex flex-col items-center min-h-screen">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
       <Card className="w-full max-w-xl mb-6">
         <CardContent className="py-6 px-6">
           <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
@@ -148,6 +149,14 @@ export default function JobDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {userRole === 'CUSTOMER' && job.type === 'POST_AND_QUOTE' && (
+        <Link href={`/jobs/${job.id}/top-bids`}>
+          <Button className="mb-6 w-full max-w-xl">
+            View Top Bids
+          </Button>
+        </Link>
+      )}
 
       {/* QUICK_BOOK: Customer view */}
       {userRole === 'CUSTOMER' && job.type === 'QUICK_BOOK' && (

@@ -27,24 +27,6 @@ export class JobController {
         return this.jobService.findById(id);
     }
 
-    @Patch(':id')
-    @UsePipes(new ValidationPipe({ whitelist: true }))
-    async updateJob(
-        @Param('id') id: string,
-        @Body() data: UpdateJobDto,
-        @Req() req: any
-    ): Promise<Job> {
-        return this.jobService.updateJob(id, data);
-    }
-
-    @Delete(':id')
-    async deleteJob(
-        @Param('id') id: string,
-        @Req() req: any
-    ): Promise<Job> {
-        return this.jobService.deleteJob(id);
-    }
-
     @UseGuards(SessionAuthGuard, new RoleGuard('PROVIDER'))
     @Patch(':id/complete')
     async completeJob(@Param('id') id: string, @Req() req: any) {

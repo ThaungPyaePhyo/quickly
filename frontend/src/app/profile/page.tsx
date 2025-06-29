@@ -15,7 +15,7 @@ export default function ProfilePage() {
   if (error || !user) return <div className="flex justify-center mt-10 text-red-500">Could not load profile.</div>;
 
   return (
-    <main className="flex flex-col items-center min-h-screen">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
       <Card className="w-full max-w-md mt-16 shadow-lg">
         <CardHeader className="flex flex-col items-center">
           <Avatar className="w-20 h-20 mb-2">

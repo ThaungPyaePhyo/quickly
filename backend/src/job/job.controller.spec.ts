@@ -11,12 +11,13 @@ describe('JobController', () => {
     id: 'job-id',
     title: 'Test Job',
     description: 'A test job',
-    category: 'General',
+    categoryId: 'category-id',
     type: 'QUICK_BOOK',
     status: 'OPEN',
     price: 100,
     acceptPrice: null,
     scheduledAt: new Date(),
+    acceptUntil: new Date(Date.now() + 30 * 1000), 
     createdAt: new Date(),
     customerId: 'customer-id',
     providerId: null,
@@ -67,19 +68,6 @@ describe('JobController', () => {
     expect(result).toEqual(mockJob);
   });
 
-  it('should update a job', async () => {
-    const req = { session: { userId: 'customer-id' } };
-    const result = await controller.updateJob('job-id', { title: 'Updated' } as any, req);
-    expect(service.updateJob).toHaveBeenCalledWith('job-id', { title: 'Updated' });
-    expect(result.title).toBe('Updated');
-  });
-
-  it('should delete a job', async () => {
-    const req = { session: { userId: 'customer-id' } };
-    const result = await controller.deleteJob('job-id', req);
-    expect(service.deleteJob).toHaveBeenCalledWith('job-id');
-    expect(result).toEqual(mockJob);
-  });
 
   it('should complete a job', async () => {
     const req = { session: { userId: 'provider-id' } };

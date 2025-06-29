@@ -46,7 +46,7 @@ export default function NewJobPage() {
     });
 
     return (
-        <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100">
+        <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
             <Card className="w-full max-w-lg shadow-xl">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold text-blue-600 text-center">

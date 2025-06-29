@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Job, JobType, JobStatus } from 'generated/prisma'; // Adjust the import path as necessary
+import { Job, JobType, JobStatus } from 'generated/prisma'; 
 
 @Injectable()
 export class JobRepository {
@@ -62,9 +62,5 @@ export class JobRepository {
         });
     }
 
-    async deleteJob(id: string): Promise<Job> {
-        return this.prisma.job.delete({
-            where: { id },
-        });
-    }
+  
 }

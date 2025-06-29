@@ -20,7 +20,7 @@ export function NavBar() {
   });
 
   return (
-    <nav className="w-full bg-white shadow-sm py-3 px-4 flex items-center justify-between mb-6">
+    <nav className="w-full bg-white shadow-sm py-3 px-4 flex items-center justify-between">
       <div className="font-bold text-blue-600 text-xl">Quickly</div>
       <div className="flex gap-2">
         <Button asChild variant="ghost">

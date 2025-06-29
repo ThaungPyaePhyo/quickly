@@ -26,4 +26,9 @@ export class BidController {
     async acceptBid(@Param('bidId') bidId: string, @Req() req: any) {
         return this.bidService.acceptBid(bidId, req.session.userId);
     }
+
+    @Get('top/:jobId')
+    async getTopRankedBids(@Param('jobId') jobId: string) {
+        return this.bidService.getTopRankedBids(jobId);
+    }
 }

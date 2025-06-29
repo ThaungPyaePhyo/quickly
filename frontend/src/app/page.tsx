@@ -1,8 +1,11 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function Home() {
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100">
       <Card className="w-full max-w-md shadow-xl">

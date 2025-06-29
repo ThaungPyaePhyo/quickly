@@ -35,7 +35,7 @@ const filteredJobs = (userRole === 'CUSTOMER'
 );
 
   return (
-    <main className="flex flex-col items-center min-h-screen">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
       <div className="flex flex-col w-full max-w-4xl mb-6">
         <div className="flex flex-row items-center justify-between mb-2 gap-2">
           <h1 className="text-3xl font-bold">Jobs</h1>

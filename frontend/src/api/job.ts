@@ -73,3 +73,7 @@ export async function completeJob(jobId: string) {
     method: 'PATCH',
   });
 }
+
+export async function fetchTopBids(jobId: string) {
+  return api<Bid[]>(`/bid/top/${jobId}`);
+}
