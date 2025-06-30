@@ -17,7 +17,7 @@ export default function RatingForm({
     mutationFn: ({ score, comment }: { score: number; comment: string }) =>
       rateProvider(jobId, score, comment),
     onSuccess,
-    onError: (err: any) => {
+    onError: (err) => {
       setError(err?.message || 'Failed to submit rating');
     },
   });

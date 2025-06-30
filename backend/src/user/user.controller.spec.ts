@@ -44,7 +44,7 @@ describe('UserController', () => {
     const dto = { email: 'test@mail.com', name: 'Test User', password: 'password', role: 'CUSTOMER' };
     const result = await controller.registerUser(dto as any);
     expect(service.register).toHaveBeenCalledWith(dto);
-    expect(result).toBe('User registered');
+    expect(result).toEqual({ message: 'User registered' });
   });
 
   it('should get current user', async () => {

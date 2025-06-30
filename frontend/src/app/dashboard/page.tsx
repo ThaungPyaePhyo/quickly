@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchMe } from '@/api/user';
-import { fetchStats, fetchRecentActivity } from '@/api/stats';
+import { fetchStats, fetchRecentActivity, Stats, RecActivity } from '@/api/stats';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -18,13 +18,14 @@ export default function Dashboard() {
     queryFn: fetchMe,
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+
+  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ['stats'],
     queryFn: fetchStats,
     enabled: !!user,
   });
 
-  const { data: recentActivity, isLoading: activityLoading } = useQuery({
+  const { data: recentActivity, isLoading: activityLoading } = useQuery<RecActivity[]>({
     queryKey: ['recent-activity'],
     queryFn: fetchRecentActivity,
     enabled: !!user,
@@ -116,14 +117,14 @@ export default function Dashboard() {
                   >
                     <span
                       className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${item.status === 'COMPLETED'
-                          ? 'bg-green-500'
-                          : item.status === 'CANCELLED'
-                            ? 'bg-red-400'
-                            : item.status === 'BOOKED'
-                              ? 'bg-yellow-400'
-                              : item.status === 'ASSIGNED'
-                                ? 'bg-blue-400'
-                                : 'bg-gray-400'
+                        ? 'bg-green-500'
+                        : item.status === 'CANCELLED'
+                          ? 'bg-red-400'
+                          : item.status === 'BOOKED'
+                            ? 'bg-yellow-400'
+                            : item.status === 'ASSIGNED'
+                              ? 'bg-blue-400'
+                              : 'bg-gray-400'
                         }`}
                     ></span>
                     <span className="font-medium max-w-[160px] truncate flex-1" title={item.title}>

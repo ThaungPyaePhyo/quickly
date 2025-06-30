@@ -30,7 +30,7 @@ export default function TopBidsPage() {
     );
   }
   if (bids && bids.length > 0) {
-    console.log('Top Bids:', bids.map(bid => bid.user?.name ?? bid.providerId));
+    console.log('Top Bids:', bids.map(bid => bid.provider?.name ?? bid.providerId));
   }
 
   return (

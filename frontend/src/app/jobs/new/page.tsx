@@ -22,7 +22,7 @@ export default function NewJobPage() {
     const [type, setType] = useState<'QUICK_BOOK' | 'POST_AND_QUOTE'>('QUICK_BOOK');
     const [error, setError] = useState<string | null>(null);
 
-    const { data: categories = [], isLoading: loadingCategories } = useQuery({
+    const { data: categories = [],  } = useQuery({
         queryKey: ['categories'],
         queryFn: fetchCategories,
     });
@@ -36,6 +36,7 @@ export default function NewJobPage() {
                 price: Number(price),
                 categoryId: category,
                 type,
+                status: 'OPEN', 
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             }),

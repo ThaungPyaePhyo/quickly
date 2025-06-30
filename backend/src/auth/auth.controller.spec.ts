@@ -44,10 +44,13 @@ describe('AuthController', () => {
   });
 
   it('should logout and destroy session', async () => {
-    const destroyMock = jest.fn((cb) => cb());
-    const req: any = { session: { destroy: destroyMock } };
-    const result = await controller.logout(req);
-    expect(destroyMock).toHaveBeenCalled();
-    expect(result).toEqual({ message: 'Logged out' });
+    const req = { session: { destroy: (cb: Function) => cb() } };
+    const res = {
+      clearCookie: jest.fn(),
+      json: jest.fn(),
+    };
+    await controller.logout(req, res as any);
+    expect(res.clearCookie).toHaveBeenCalledWith('connect.sid');
+    expect(res.json).toHaveBeenCalledWith({ message: 'Logged out' });
   });
 });

@@ -4,6 +4,7 @@ import { BidRepository } from './bid.repository';
 import { JobRepository } from '../job/job.repository';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Bid, Job, JobStatus } from '../../generated/prisma';
+import { PrismaService } from '../prisma.service';
 
 describe('BidService', () => {
   let service: BidService;
@@ -49,6 +50,7 @@ describe('BidService', () => {
           findById: jest.fn().mockResolvedValue(mockJob),
           updateJob: jest.fn().mockResolvedValue({ ...mockJob, providerId: mockBid.providerId, status: JobStatus.ASSIGNED, acceptPrice: mockBid.price }),
         }},
+          { provide: PrismaService, useValue: {} }, 
       ],
     }).compile();
 

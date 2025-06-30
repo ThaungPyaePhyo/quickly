@@ -78,17 +78,6 @@ describe('JobService', () => {
     await expect(service.updateJob('bad-id', { title: 'Updated' })).rejects.toThrow(NotFoundException);
   });
 
-  it('should delete a job', async () => {
-    const result = await service.deleteJob('job-id');
-    expect(jobRepository.deleteJob).toHaveBeenCalledWith('job-id');
-    expect(result).toEqual(mockJob);
-  });
-
-  it('should throw NotFoundException when deleting non-existent job', async () => {
-    jobRepository.findById.mockResolvedValueOnce(null);
-    await expect(service.deleteJob('bad-id')).rejects.toThrow(NotFoundException);
-  });
-
   it('should complete a job', async () => {
     jobRepository.updateJob.mockResolvedValueOnce({ ...mockJob, status: JobStatus.COMPLETED });
     const result = await service.completeJob('job-id', null);

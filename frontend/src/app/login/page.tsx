@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMutation } from '@tanstack/react-query';
 import { login } from '@/api/login';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -60,11 +59,19 @@ export default function LoginPage() {
             </Button>
             {error && <div className="text-red-600 text-center">{error}</div>}
           </form>
-            <div className="text-center mt-4">
-            Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 underline">
-              Sign Up
-            </Link>
+          <div className="text-center mt-4">
+            <p>
+              Don&apos;t have an account?
+              <span
+                className="text-blue-600 underline cursor-pointer ml-1"
+                onClick={() => router.push('/register')}
+                tabIndex={0}
+                role="button"
+                onKeyDown={e => { if (e.key === 'Enter') router.push('/register'); }}
+              >
+                Sign Up
+              </span>
+            </p>
           </div>
         </CardContent>
       </Card>

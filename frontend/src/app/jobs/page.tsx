@@ -6,8 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { fetchJobs, Job } from '@/api/job';
 import { fetchMe } from '@/api/user';
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
+
 
 export default function JobListPage() {
   const { data: user } = useQuery({

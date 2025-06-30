@@ -6,19 +6,31 @@ export type Job = {
   description: string;
   price: number;
   categoryId?: string;
+  category?: { id: string; name: string };
   type?: 'QUICK_BOOK' | 'POST_AND_QUOTE';
   acceptPrice?: number;
+  acceptUntil?: string;
+  status: 'OPEN' | 'BOOKED' | 'ASSIGNED' | 'COMPLETED' | 'CANCELLED';
+  scheduledAt?: string;
+  providerId?: string;
+  provider?: { id: string; name: string };
+  customerId?: string;
+  customer?: { id: string; name: string };
   createdAt: string;
   updatedAt: string;
   _count?: {
-    bids: number;}
+    bids: number;
+  }
 };
 
 export type Bid = {
   id: string;
   price: number;
   note?: string;
+  providerId: string;
   provider?: { id: string; name: string };
+  eta?: number;
+  rankScore?: number;
   createdAt: string;
 };
 

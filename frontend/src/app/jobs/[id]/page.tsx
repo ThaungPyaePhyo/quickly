@@ -6,9 +6,9 @@ import { fetchJobById, fetchBidsForJob, submitBid, acceptQuickBookJob, acceptBid
 import { fetchMe } from '@/api/user';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import RatingForm from '@/components/RatingFrom';
+import RatingForm from '@/components/RatingForm';
 import { useState } from 'react';
-import { getJobRatings } from '@/api/rating';
+import { getJobRatings, Rating } from '@/api/rating';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
@@ -32,7 +32,7 @@ export default function JobDetailPage() {
     enabled: !!id,
   });
 
-  const { data: ratings } = useQuery({
+  const { data: ratings } = useQuery<Rating[]>({
     queryKey: ['ratings', id],
     queryFn: () => getJobRatings(id),
     enabled: !!id,
@@ -55,7 +55,7 @@ export default function JobDetailPage() {
     refetchInterval: 1000,
   });
 
-  const userBid = bids?.find(bid => bid.providerId === user?.id);
+  const userBid = bids?.find(bid => bid.provider?.id === user?.id);
 
   const bidMutation = useMutation({
     mutationFn: () => submitBid(id, { price: Number(bidPrice), note: bidNote, eta: Number(bidEta) }),
@@ -79,7 +79,10 @@ export default function JobDetailPage() {
   });
 
   const acceptMutation = useMutation({
-    mutationFn: () => acceptQuickBookJob(job.id),
+    mutationFn: () => {
+      if (!job) throw new Error('Job not loaded');
+      return acceptQuickBookJob(job.id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
       toast.success('Job accepted!');
@@ -102,7 +105,10 @@ export default function JobDetailPage() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelJob(job.id),
+    mutationFn: () => {
+      if (!job) throw new Error('Job not loaded');
+      return cancelJob(job.id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
       toast.success('Job cancelled.');
@@ -113,7 +119,10 @@ export default function JobDetailPage() {
   });
 
   const completeMutation = useMutation({
-    mutationFn: () => completeJob(job.id),
+    mutationFn: () => {
+      if (!job) throw new Error('Job not loaded');
+      return completeJob(job.id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
       toast.success('Job marked as completed!');
@@ -129,8 +138,7 @@ export default function JobDetailPage() {
   const jobAlreadyRated =
     ratings &&
     job.providerId &&
-    ratings.some((r: any) => r.providerId === job.providerId);
-
+    ratings.some(r => r.providerId === job.providerId);
 
   return (
     <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
@@ -139,7 +147,7 @@ export default function JobDetailPage() {
           <h1 className="text-2xl font-bold mb-2">{job.title}</h1>
           <div className="mb-2 text-zinc-600">{job.description}</div>
           <div className="mb-2">
-            <span className="font-semibold">Category:</span> {job.category.name}
+              <span className="font-semibold">Category:</span> {job.category?.name ?? 'Unknown'}
           </div>
           <div className="mb-2">
             <span className="font-semibold">Type:</span> {job.type}
@@ -183,7 +191,7 @@ export default function JobDetailPage() {
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
             <div className="mb-2">
-              <span className="font-semibold">Category:</span> {job.category.name}
+              <span className="font-semibold">Category:</span> {job.category?.name}
             </div>
             <div className="mb-2">
               <span className="font-semibold">Smart Price:</span> ${job.price}
@@ -248,7 +256,7 @@ export default function JobDetailPage() {
                   One-tap hire for routine, urgent chores
                 </div>
                 <div className="mb-2">
-                  <span className="font-semibold">Category:</span> {job.category.name}
+                  <span className="font-semibold">Category:</span> {job.category?.name ?? 'Unknown'}
                 </div>
                 <div className="mb-2">
                   <span className="font-semibold">Smart Price:</span> ${job.price}
@@ -443,7 +451,9 @@ export default function JobDetailPage() {
               <span className="ml-2 text-zinc-700">{ratings[0].score} / 5</span>
             </div>
             {ratings[0].comment && (
-              <div className="mt-2 text-zinc-600 italic">"{ratings[0].comment}"</div>
+              <div className="mt-2 text-zinc-600 italic">
+                &quot;{ratings[0].comment}&quot;
+              </div>
             )}
           </CardContent>
         </Card>
