@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMutation } from '@tanstack/react-query';
 import { register } from '@/api/register';
+import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-blue-600 text-center">
-            Register for Quickly
+            Sign Up for Quickly
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -88,10 +89,16 @@ export default function RegisterPage() {
               </label>
             </div>
             <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Registering...' : 'Register'}
+              {mutation.isPending ? 'Registering...' : 'Sign Up'}
             </Button>
             {error && <div className="text-red-600 text-center">{error}</div>}
           </form>
+           <div className="text-center mt-4">
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600 underline">
+              Sign In
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </main>

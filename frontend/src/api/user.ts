@@ -5,11 +5,18 @@ export type User = {
   name: string;
   email: string;
   role: 'CUSTOMER' | 'PROVIDER';
-  // Add other fields as needed
+  isAvailable: boolean;
 };
 
 export async function fetchMe(): Promise<User> {
   return api<User>('/user/me', {
     method: 'GET',
+  });
+}
+
+export async function updateMe(data: Partial<User>) {
+  return api<User>('/user/update', {
+    method: 'PATCH',
+    body: data,
   });
 }

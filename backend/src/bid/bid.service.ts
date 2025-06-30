@@ -10,7 +10,7 @@ export class BidService {
     constructor(
         private bidRepository: BidRepository,
         private jobRepository: JobRepository,
-        private prisma: PrismaService //
+        private prisma: PrismaService
 
     ) { }
 
@@ -18,7 +18,7 @@ export class BidService {
         const job = await this.jobRepository.findById(dto.jobId);
         if (!job) throw new NotFoundException('Job not found');
 
-        if (job.acceptPrice && dto.price <= job.acceptPrice) {
+        if (job.price && dto.price <= job.price) {
             await this.jobRepository.updateJob(dto.jobId, {
                 providerId,
                 status: JobStatus.ASSIGNED,
@@ -53,10 +53,11 @@ export class BidService {
             bids.map(async (bid) => {
                 const provider = await this.prisma.user.findUnique({
                     where: { id: bid.providerId },
-                    select: { rating: true },
+                    select: { id: true, name: true, rating: true }, 
                 });
                 return {
                     ...bid,
+                    provider: provider ? { id: provider.id, name: provider.name } : null,
                     rating: provider?.rating ?? 1,
                 };
             })

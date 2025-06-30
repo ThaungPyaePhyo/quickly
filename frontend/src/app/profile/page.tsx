@@ -1,14 +1,28 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { fetchMe } from '@/api/user';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchMe, updateMe } from '@/api/user';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import { useState } from 'react';
 
 export default function ProfilePage() {
+  const queryClient = useQueryClient();
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['me'],
     queryFn: fetchMe,
+  });
+
+  const [toggleError, setToggleError] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (isAvailable: boolean) => updateMe({ isAvailable }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      setToggleError(null);
+    },
+    onError: () => setToggleError('Failed to update availability'),
   });
 
   if (isLoading) return <div className="flex justify-center mt-10">Loading...</div>;
@@ -22,10 +36,10 @@ export default function ProfilePage() {
             <AvatarFallback>
               {user.name
                 ? user.name
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()
+                  .split(' ')
+                  .map(n => n[0])
+                  .join('')
+                  .toUpperCase()
                 : 'U'}
             </AvatarFallback>
           </Avatar>
@@ -39,7 +53,19 @@ export default function ProfilePage() {
               {user.role}
             </span>
           </div>
+          {user.role === 'PROVIDER' && (
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-zinc-700">Available</span>
+              <Switch
+                checked={user.isAvailable}
+                onCheckedChange={val => mutation.mutate(val)}
+                disabled={mutation.isPending}
+              />
+            </div>
+          )}
+          {toggleError && <div className="text-red-600 text-sm">{toggleError}</div>}
         </CardContent>
       </Card>
     </main>
   );
+}

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -15,9 +15,11 @@ export class AuthController {
     return { message: 'Login successful', user };
   }
 
-  @Post('logout')
-  async logout(@Req() req: any) {
-    req.session.destroy(() => {});
-    return { message: 'Logged out' };
-  }
+ @Post('logout')
+async logout(@Req() req: any, @Res() res: any) {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.json({ message: 'Logged out' });
+  });
+}
 }

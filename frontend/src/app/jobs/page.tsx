@@ -6,7 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { fetchJobs, Job } from '@/api/job';
 import { fetchMe } from '@/api/user';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 export default function JobListPage() {
   const { data: user } = useQuery({
@@ -22,17 +23,18 @@ export default function JobListPage() {
     queryFn: fetchJobs,
   });
 
-const filteredJobs = (userRole === 'CUSTOMER'
-  ? jobs?.filter(job => job.customerId === user?.id)
-  : jobs
-)?.filter(
-  job =>
+
+  const filteredJobs = (userRole === 'CUSTOMER'
+    ? jobs?.filter(job => job.customerId === user?.id)
+    : jobs
+  )?.filter(
+    job =>
     (
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       (job.description && job.description.toLowerCase().includes(search.toLowerCase())) ||
       (job.category && job.category.name.toLowerCase().includes(search.toLowerCase()))
     )
-);
+  );
 
   return (
     <main className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-50 to-white py-10">
@@ -111,10 +113,6 @@ const filteredJobs = (userRole === 'CUSTOMER'
                     {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && (
                       <Button
                         size="sm"
-                        onClick={e => {
-                          e.preventDefault();
-                          window.location.href = `/jobs/${job.id}`;
-                        }}
                       >
                         Bid
                       </Button>

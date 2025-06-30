@@ -1,5 +1,5 @@
 import { IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
-import { JobType } from '../../../generated/prisma'; // Adjust path if needed
+import { JobType } from '../../../generated/prisma'; 
 
 export class CreateJobDto {
   @IsString()

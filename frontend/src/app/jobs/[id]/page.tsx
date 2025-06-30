@@ -10,6 +10,7 @@ import RatingForm from '@/components/RatingFrom';
 import { useState } from 'react';
 import { getJobRatings } from '@/api/rating';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 
 export default function JobDetailPage() {
@@ -31,17 +32,17 @@ export default function JobDetailPage() {
     enabled: !!id,
   });
 
- const { data: ratings } = useQuery({
-  queryKey: ['ratings', id],
-  queryFn: () => getJobRatings(id),
-  enabled: !!id,
-});
+  const { data: ratings } = useQuery({
+    queryKey: ['ratings', id],
+    queryFn: () => getJobRatings(id),
+    enabled: !!id,
+  });
 
   const [bidPrice, setBidPrice] = useState('');
   const [bidNote, setBidNote] = useState('');
+  const [bidEta, setBidEta] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // For Quick Book countdown (provider)
   const { data: countdown = 0 } = useQuery({
     queryKey: ['acceptCountdown', job?.id, job?.acceptUntil],
     queryFn: () => {
@@ -57,18 +58,22 @@ export default function JobDetailPage() {
   const userBid = bids?.find(bid => bid.providerId === user?.id);
 
   const bidMutation = useMutation({
-    mutationFn: () => submitBid(id, { price: Number(bidPrice), note: bidNote }),
+    mutationFn: () => submitBid(id, { price: Number(bidPrice), note: bidNote, eta: Number(bidEta) }),
     onSuccess: () => {
       setBidPrice('');
       setBidNote('');
+      setBidEta('');
       refetchBids();
       queryClient.invalidateQueries({ queryKey: ['job', id] });
+      toast.success('Bid submitted!');
     },
     onError: (err: unknown) => {
       if (err && typeof err === 'object' && 'message' in err) {
         setError((err as { message: string }).message);
+        toast.error((err as { message: string }).message);
       } else {
         setError('Failed to submit bid');
+        toast.error('Failed to submit bid');
       }
     },
   });
@@ -77,7 +82,11 @@ export default function JobDetailPage() {
     mutationFn: () => acceptQuickBookJob(job.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
+      toast.success('Job accepted!');
     },
+    onError: () => {
+      toast.error('Failed to accept job');
+    }
   });
 
   const acceptBidMutation = useMutation({
@@ -85,23 +94,33 @@ export default function JobDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
       queryClient.invalidateQueries({ queryKey: ['bids', id] });
+      toast.success('Bid accepted!');
     },
+    onError: () => {
+      toast.error('Failed to accept bid');
+    }
   });
 
-  // Cancel job mutation (customer or provider)
   const cancelMutation = useMutation({
     mutationFn: () => cancelJob(job.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
+      toast.success('Job cancelled.');
     },
+    onError: () => {
+      toast.error('Failed to cancel job');
+    }
   });
 
-  // Complete job mutation (provider)
   const completeMutation = useMutation({
     mutationFn: () => completeJob(job.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['job', id] });
+      toast.success('Job marked as completed!');
     },
+    onError: () => {
+      toast.error('Failed to complete job');
+    }
   });
 
   if (jobLoading) return <div>Loading...</div>;
@@ -140,7 +159,6 @@ export default function JobDetailPage() {
               <span className="font-semibold">Accept Price:</span> ${job.acceptPrice}
             </div>
           )}
-          {/* Show status */}
           {job.status === 'CANCELLED' && (
             <div className="text-red-600 font-semibold mt-2">This job has been cancelled.</div>
           )}
@@ -150,15 +168,17 @@ export default function JobDetailPage() {
         </CardContent>
       </Card>
 
-      {userRole === 'CUSTOMER' && job.type === 'POST_AND_QUOTE' && (
-        <Link href={`/jobs/${job.id}/top-bids`}>
-          <Button className="mb-6 w-full max-w-xl">
-            View Top Bids
-          </Button>
-        </Link>
-      )}
+      {userRole === 'CUSTOMER' &&
+        job.type === 'POST_AND_QUOTE' &&
+        job.status === 'OPEN' && (
+          <Link href={`/jobs/${job.id}/top-bids`}>
+            <Button className="mb-6 w-full max-w-xl">
+              View Top Bids
+            </Button>
+          </Link>
+        )}
 
-      {/* QUICK_BOOK: Customer view */}
+
       {userRole === 'CUSTOMER' && job.type === 'QUICK_BOOK' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -218,7 +238,7 @@ export default function JobDetailPage() {
           </CardContent>
         </Card>
       )}
-      {/* QUICK_BOOK: Provider view */}
+
       {userRole === 'PROVIDER' && job.type === 'QUICK_BOOK' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -258,7 +278,6 @@ export default function JobDetailPage() {
                 <div className="text-xs text-zinc-500 text-center">
                   First provider to accept wins!
                 </div>
-                {/* Cancel button for provider */}
                 <Button
                   variant="destructive"
                   className="mt-4"
@@ -275,7 +294,6 @@ export default function JobDetailPage() {
         </Card>
       )}
 
-      {/* POST_AND_QUOTE: Provider view */}
       {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
@@ -301,6 +319,15 @@ export default function JobDetailPage() {
                     required
                     className="border px-2 py-1 rounded"
                   />
+                  <input
+                    type="number"
+                    placeholder="ETA (hours)"
+                    value={bidEta}
+                    onChange={e => setBidEta(e.target.value)}
+                    required
+                    min={1}
+                    className="border px-2 py-1 rounded"
+                  />
                   <textarea
                     placeholder="Note (optional)"
                     value={bidNote}
@@ -318,7 +345,6 @@ export default function JobDetailPage() {
         </Card>
       )}
 
-      {/* POST_AND_QUOTE: Customer view (bids and assign) */}
       {userRole === 'CUSTOMER' &&
         user?.id === job.customerId &&
         job.type === 'POST_AND_QUOTE' &&
@@ -332,7 +358,6 @@ export default function JobDetailPage() {
                 <ul className="flex flex-col gap-2">
                   {bids
                     .sort((a, b) => a.price - b.price)
-                    .slice(0, 3)
                     .map(bid => (
                       <li key={bid.id} className="border p-2 rounded flex flex-col">
                         <div>
@@ -352,7 +377,6 @@ export default function JobDetailPage() {
                         {job.providerId === bid.providerId && job.status === 'ASSIGNED' && (
                           <>
                             <span className="text-green-600 text-xs mt-1">Accepted</span>
-                            {/* Cancel button for customer */}
                             <Button
                               variant="destructive"
                               className="mt-2"
@@ -407,7 +431,6 @@ export default function JobDetailPage() {
           </Card>
         )}
 
-      {/* Display rating after submission */}
       {job.status === 'COMPLETED' && ratings && ratings.length > 0 && (
         <Card className="w-full max-w-xl mt-4">
           <CardContent>

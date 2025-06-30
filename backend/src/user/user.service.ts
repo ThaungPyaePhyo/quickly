@@ -3,10 +3,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { User } from 'generated/prisma';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository) { }
 
   async register(dto: CreateUserDto): Promise<string> {
     const exists = await this.userRepository.findByEmail(dto.email);
@@ -26,5 +27,9 @@ export class UserService {
 
   async findById(id: string): Promise<User | null> {
     return this.userRepository.findById(id);
+  }
+
+  async update(userId: string, dto: UpdateUserDto) {
+    return this.userRepository.updateUser(userId, dto);
   }
 }

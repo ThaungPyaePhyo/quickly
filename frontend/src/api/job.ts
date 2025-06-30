@@ -20,7 +20,6 @@ export type Bid = {
   note?: string;
   provider?: { id: string; name: string };
   createdAt: string;
-  // Add other fields as needed
 };
 
 export async function fetchJobs(): Promise<Job[]> {
@@ -43,7 +42,7 @@ export async function fetchBidsForJob(jobId: string): Promise<Bid[]> {
 }
 
 
-export async function submitBid(jobId: string, data: { price: number; note?: string }) {
+export async function submitBid(jobId: string, data: { price: number; note?: string; eta: number }) {
   return api<Bid>(`/bid`, {
     method: 'POST',
     body: { ...data, jobId },

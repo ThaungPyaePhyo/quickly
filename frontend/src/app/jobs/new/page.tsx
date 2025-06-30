@@ -11,6 +11,7 @@ import { createJob } from '@/api/job';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCategories } from '@/api/category';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import  toast  from 'react-hot-toast';
 
 export default function NewJobPage() {
     const router = useRouter();
@@ -38,7 +39,10 @@ export default function NewJobPage() {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             }),
-        onSuccess: () => router.push('/jobs'),
+        onSuccess: () => {
+            toast.success('Job posted successfully!');
+            router.push('/jobs')
+        },
         onError: (err: unknown) => {
             if (err instanceof Error) setError(err.message || 'Job creation failed');
             else setError('Job creation failed');
