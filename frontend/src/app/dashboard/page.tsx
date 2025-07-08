@@ -155,12 +155,12 @@ export default function Dashboard() {
                     Browse jobs
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link href="/profile" className="flex items-center gap-2 text-blue-600 hover:underline">
                     <User className="w-4 h-4" />
                     Update your profile
                   </Link>
-                </li>
+                </li> */}
                 {user?.role === 'CUSTOMER' && (
                   <li>
                     <Link href="/jobs/new" className="flex items-center gap-2 text-blue-600 hover:underline">
