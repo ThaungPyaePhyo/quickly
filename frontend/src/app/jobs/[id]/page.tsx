@@ -302,7 +302,7 @@ export default function JobDetailPage() {
         </Card>
       )}
 
-      {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && (
+      {userRole === 'PROVIDER' && job.type === 'POST_AND_QUOTE' && job.status === 'OPEN' && (
         <Card className="w-full max-w-xl mb-6">
           <CardContent>
             {userBid ? (
