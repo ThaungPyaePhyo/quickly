@@ -12,9 +12,9 @@ export default function Home() {
         <CardHeader>
           <div className="flex flex-col items-center gap-2">
             <Image
-              src="/next.svg"
-              alt="Next.js logo"
-              width={120}
+              src="/favicon.svg"
+              alt="logo"
+              width={50}
               height={30}
               className="mb-2"
               priority
