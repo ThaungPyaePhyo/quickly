@@ -95,7 +95,7 @@ export default function Dashboard() {
           
           <div className="flex flex-col sm:flex-row gap-3">
             {user?.role === 'CUSTOMER' && (
-              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button asChild className="bg-blue-600 hover:bg-blue-800 text-white">
                 <Link href="/jobs/new">
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Post a Job
