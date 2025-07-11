@@ -1,19 +1,22 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useMutation } from '@tanstack/react-query';
 import { logout } from '@/api/logout';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { LogOut, User, Briefcase, LayoutDashboard, Bell, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { LogOut, User, Briefcase, LayoutDashboard, Bell, X, Menu } from 'lucide-react';
 import Image from 'next/image';
 
 export function NavBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(3); // Example count
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(3);
+  const notificationRef = useRef<HTMLDivElement>(null);
   
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -29,7 +32,26 @@ export function NavBar() {
     { href: '/profile', label: 'Profile', icon: User },
   ];
 
-  // Example notifications data
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showNotifications]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setShowMobileMenu(false);
+  }, [pathname]);
+
+  // Enhanced notifications with better structure
   const notifications = [
     {
       id: 1,
@@ -37,6 +59,7 @@ export function NavBar() {
       message: 'You have a new application for Software Engineer position',
       time: '2 minutes ago',
       unread: true,
+      type: 'application' as const,
     },
     {
       id: 2,
@@ -44,6 +67,7 @@ export function NavBar() {
       message: 'Your profile has been successfully updated',
       time: '1 hour ago',
       unread: true,
+      type: 'profile' as const,
     },
     {
       id: 3,
@@ -51,6 +75,7 @@ export function NavBar() {
       message: 'Interview scheduled for tomorrow at 3 PM',
       time: '2 hours ago',
       unread: false,
+      type: 'interview' as const,
     },
   ];
 
@@ -58,21 +83,28 @@ export function NavBar() {
     setShowNotifications(!showNotifications);
   };
 
-  const markAsRead = (id) => {
-    // Logic to mark notification as read
+  const markAsRead = (id: number) => {
     console.log('Mark notification as read:', id);
+    // Update notification count
+    setNotificationCount(prev => Math.max(0, prev - 1));
   };
 
   const clearAllNotifications = () => {
     setNotificationCount(0);
     setShowNotifications(false);
-    // Logic to clear all notifications
+  };
+
+  const isActiveRoute = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard' || pathname === '/';
+    }
+    return pathname.startsWith(href);
   };
 
   return (
     <>
-      {/* Desktop Navigation - Top */}
-      <nav className="hidden md:block w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      {/* Desktop Navigation */}
+      <nav className="hidden lg:block w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo Section */}
@@ -80,13 +112,13 @@ export function NavBar() {
               href="/dashboard" 
               className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
             >
-              <div className="bg-slate-900 p-2 rounded-lg">
+              <div className="w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
                 <Image
                   src="/favicon.svg"
-                  alt="Quickly logo"
+                  alt="Quickly Logo"
                   width={20}
                   height={20}
-                  className="w-5 h-5 filter brightness-0 invert"
+                  priority
                 />
               </div>
               <div className="font-bold text-slate-900 text-2xl">
@@ -95,30 +127,36 @@ export function NavBar() {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveRoute(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200 flex items-center gap-2"
+                    className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
                   >
                     <Icon size={18} />
-                    <span className="font-medium">{item.label}</span>
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
               
               {/* Notifications */}
-              <div className="relative">
+              <div className="relative" ref={notificationRef}>
                 <button
                   onClick={handleNotificationClick}
-                  className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200 flex items-center gap-2"
+                  className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200"
+                  aria-label="Notifications"
                 >
                   <Bell size={20} />
                   {notificationCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                       {notificationCount > 9 ? '9+' : notificationCount}
                     </span>
                   )}
@@ -132,9 +170,10 @@ export function NavBar() {
                         <h3 className="font-semibold text-slate-900">Notifications</h3>
                         <button
                           onClick={() => setShowNotifications(false)}
-                          className="text-slate-400 hover:text-slate-600 transition-colors"
+                          className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded"
+                          aria-label="Close notifications"
                         >
-                          <X size={18} />
+                          <X size={16} />
                         </button>
                       </div>
                     </div>
@@ -155,14 +194,14 @@ export function NavBar() {
                             onClick={() => markAsRead(notification.id)}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-2 h-2 rounded-full mt-2 ${
+                              <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
                                 notification.unread ? 'bg-blue-500' : 'bg-transparent'
                               }`}></div>
-                              <div className="flex-1">
+                              <div className="flex-1 min-w-0">
                                 <h4 className="font-medium text-slate-900 text-sm">
                                   {notification.title}
                                 </h4>
-                                <p className="text-slate-600 text-sm mt-1">
+                                <p className="text-slate-600 text-sm mt-1 line-clamp-2">
                                   {notification.message}
                                 </p>
                                 <p className="text-slate-400 text-xs mt-2">
@@ -179,7 +218,7 @@ export function NavBar() {
                       <div className="p-3 bg-slate-50 border-t border-gray-100">
                         <button
                           onClick={clearAllNotifications}
-                          className="w-full text-center text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium"
+                          className="w-full text-center text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium py-1"
                         >
                           Clear all notifications
                         </button>
@@ -189,15 +228,17 @@ export function NavBar() {
                 )}
               </div>
               
+              {/* Logout Button */}
               <div className="ml-4 pl-4 border-l border-gray-200">
                 <Button
                   onClick={() => logoutMutation.mutate()}
                   disabled={logoutMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  variant="outline"
+                  className="font-medium px-4 py-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
                 >
                   {logoutMutation.isPending ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
                       <span>Logging out...</span>
                     </>
                   ) : (
@@ -213,21 +254,121 @@ export function NavBar() {
         </div>
       </nav>
 
-      {/* Mobile Logo Header - Simple and Clean */}
-      <div className="md:hidden w-full bg-white/95 backdrop-blur-md sticky top-0 z-40">
+      {/* Tablet Navigation */}
+      <nav className="hidden md:block lg:hidden w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link 
+              href="/dashboard" 
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200"
+            >
+              <div className="w-8 h-8 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
+                <Image
+                  src="/favicon.svg"
+                  alt="Quickly logo"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <div className="font-bold text-slate-900 text-xl">
+                Quickly
+              </div>
+            </Link>
+
+            {/* Right Side Icons */}
+            <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <div className="relative" ref={notificationRef}>
+                <button
+                  onClick={handleNotificationClick}
+                  className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200"
+                  aria-label="Notifications"
+                >
+                  <Bell size={22} />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200"
+                aria-label="Menu"
+              >
+                <Menu size={22} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tablet Menu Dropdown */}
+        {showMobileMenu && (
+          <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-40">
+            <div className="px-4 py-2">
+              <div className="grid grid-cols-2 gap-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = isActiveRoute(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2 p-3 rounded-lg transition-colors duration-200 ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Icon size={18} />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <Button
+                  onClick={() => logoutMutation.mutate()}
+                  disabled={logoutMutation.isPending}
+                  variant="outline"
+                  className="w-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 hover:bg-red-50 hover:text-red-700 hover:border-red-200"
+                >
+                  {logoutMutation.isPending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span>Logging out...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogOut size={16} />
+                      <span>Logout</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Mobile Header */}
+      <div className="md:hidden w-full bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-gray-200">
         <div className="px-4">
           <div className="flex items-center justify-between h-16">
             <Link 
               href="/dashboard" 
               className="flex items-center gap-3"
             >
-              <div className="bg-slate-900 p-2 rounded-lg">
+              <div className="w-8 h-8 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
                 <Image
                   src="/favicon.svg"
                   alt="Quickly logo"
                   width={20}
                   height={20}
-                  className="w-5 h-5 filter brightness-0 invert"
                 />
               </div>
               <div className="font-bold text-slate-900 text-xl">
@@ -236,48 +377,50 @@ export function NavBar() {
             </Link>
 
             {/* Mobile Notification Icon */}
-            <div className="relative">
-              <button
-                onClick={handleNotificationClick}
-                className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200"
-              >
-                <Bell size={22} />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium animate-pulse">
-                    {notificationCount > 9 ? '9+' : notificationCount}
-                  </span>
-                )}
-              </button>
-
-
-            </div>
+            <button
+              onClick={handleNotificationClick}
+              className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors duration-200"
+              aria-label="Notifications"
+            >
+              <Bell size={22} />
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg">
-        <div className="px-4 py-2">
+        <div className="px-2 py-2">
           <div className="flex items-center justify-around">
-            {navItems.map((item) => {
+            {navItems.slice(0, 3).map((item) => {
               const Icon = item.icon;
+              const isActive = isActiveRoute(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex flex-col items-center gap-1 py-2 px-3 text-slate-500 hover:text-slate-900 transition-colors duration-200 min-w-0"
+                  className={`flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-200 min-w-0 ${
+                    isActive
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
                 >
-                  <Icon size={22} />
+                  <Icon size={20} />
                   <span className="text-xs font-medium truncate">{item.label}</span>
                 </Link>
               );
             })}
             
-            {/* Bottom Nav Logout Button */}
+            {/* Logout */}
             <button
               onClick={() => logoutMutation.mutate()}
               disabled={logoutMutation.isPending}
-              className="flex flex-col items-center gap-1 py-2 px-3 text-slate-500 hover:text-red-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
+              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg text-slate-500 hover:text-red-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
             >
               {logoutMutation.isPending ? (
                 <>
@@ -286,7 +429,7 @@ export function NavBar() {
                 </>
               ) : (
                 <>
-                  <LogOut size={22} />
+                  <LogOut size={20} />
                   <span className="text-xs font-medium">Logout</span>
                 </>
               )}
@@ -302,18 +445,17 @@ export function NavBar() {
       {showNotifications && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
           <div className="absolute inset-x-0 top-0 bg-white h-full">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
               <h2 className="text-xl font-bold text-slate-900">Notifications</h2>
               <button
                 onClick={() => setShowNotifications(false)}
-                className="p-2 -m-2 text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-2 -m-2 text-slate-400 hover:text-slate-600 transition-colors rounded-lg"
+                aria-label="Close notifications"
               >
                 <X size={24} />
               </button>
             </div>
             
-            {/* Notifications List */}
             <div className="flex-1 overflow-y-auto pb-20">
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-slate-500">
@@ -368,7 +510,6 @@ export function NavBar() {
               )}
             </div>
             
-            {/* Bottom Actions */}
             {notifications.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
                 <button
@@ -381,14 +522,6 @@ export function NavBar() {
             )}
           </div>
         </div>
-      )}
-      
-      {/* Desktop Overlay to close notifications when clicking outside */}
-      {showNotifications && (
-        <div 
-          className="hidden md:block fixed inset-0 z-40 bg-black/10 backdrop-blur-sm" 
-          onClick={() => setShowNotifications(false)}
-        />
       )}
     </>
   );

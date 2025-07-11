@@ -3,6 +3,7 @@ import { Providers } from './providers';
 import { NavWrapper } from '@/components/NavWrapper';
 import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
+import { FooterWrapper } from '@/components/FooterWrapper';
 
 export const metadata: Metadata = {
   title: 'Quickly',
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavWrapper />
                 <Toaster position="top-right" />
           {children}
+          <FooterWrapper />
         </Providers>
       </body>
     </html>

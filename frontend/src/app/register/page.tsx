@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMutation } from '@tanstack/react-query';
 import { register } from '@/api/register';
-import { User, Mail, Lock, UserPlus, Zap, Shield, Store, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, Shield, Store, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,46 +29,50 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 via-transparent to-indigo-100/20"></div>
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-200/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-indigo-200/10 rounded-full blur-3xl"></div>
-      </div>
-      
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl mb-6 mx-auto shadow-xl shadow-blue-500/25 border border-blue-500/20">
-            <Zap className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full space-y-8">
+        {/* Simple Header */}
+        <div className="text-center space-y-6">
+          {/* Clean Logo */}
+          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center mx-auto">
+            <Image
+              src="/favicon.svg"
+              alt="Logo"
+              width={28}
+              height={28}
+              priority
+            />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">
-            Join Quickly
-          </h1>
-          <p className="text-lg text-gray-600 font-medium">
-            Create your account and get started
-          </p>
+          
+          {/* Clean Title */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Create your account
+            </h1>
+            <p className="text-gray-600">
+              Join Quickly and get started today.
+            </p>
+          </div>
         </div>
 
-        {/* Registration Form */}
-        <Card className="bg-white/80 backdrop-blur-sm shadow-2xl border-0 ring-1 ring-gray-200/50">
-          <CardContent className="p-8">
+        {/* Clean Form */}
+        <Card className="bg-white shadow-sm border border-gray-200">
+          <CardContent className="p-6">
             <form
               onSubmit={e => {
                 e.preventDefault();
                 setError(null);
                 mutation.mutate();
               }}
-              className="space-y-6"
+              className="space-y-5"
             >
               {/* Name Field */}
               <div className="space-y-2">
-                <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                   Full Name
                 </label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="name"
                     type="text"
@@ -75,18 +80,18 @@ export default function RegisterPage() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     required
-                    className="pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                    className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                  Email Address
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email
                 </label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
@@ -94,18 +99,18 @@ export default function RegisterPage() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                    className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -113,68 +118,68 @@ export default function RegisterPage() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    className="pl-12 pr-14 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 bg-gray-50/50 hover:bg-white"
+                    className="pl-10 pr-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               {/* Role Selection */}
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-700">
+                <label className="block text-sm font-medium text-gray-700">
                   I want to join as
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div
                     onClick={() => setRole('CUSTOMER')}
-                    className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 ${
+                    className={`relative cursor-pointer rounded-md border p-3 transition-all ${
                       role === 'CUSTOMER'
-                        ? 'border-blue-500 bg-blue-50 ring-4 ring-blue-500/10'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       <div className={`w-4 h-4 rounded-full border-2 ${
                         role === 'CUSTOMER' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                       }`}>
                         {role === 'CUSTOMER' && <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <Shield className="w-4 h-4 text-blue-600" />
-                          <span className="font-semibold text-gray-900">Customer</span>
+                          <span className="text-sm font-medium text-gray-900">Customer</span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Book services</p>
+                        <p className="text-xs text-gray-500">Book services</p>
                       </div>
                     </div>
                   </div>
 
                   <div
                     onClick={() => setRole('PROVIDER')}
-                    className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 ${
+                    className={`relative cursor-pointer rounded-md border p-3 transition-all ${
                       role === 'PROVIDER'
-                        ? 'border-emerald-500 bg-emerald-50 ring-4 ring-emerald-500/10'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       <div className={`w-4 h-4 rounded-full border-2 ${
-                        role === 'PROVIDER' ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                        role === 'PROVIDER' ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                       }`}>
                         {role === 'PROVIDER' && <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <Store className="w-4 h-4 text-emerald-600" />
-                          <span className="font-semibold text-gray-900">Provider</span>
+                        <div className="flex items-center gap-1">
+                          <Store className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm font-medium text-gray-900">Provider</span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Offer services</p>
+                        <p className="text-xs text-gray-500">Offer services</p>
                       </div>
                     </div>
                   </div>
@@ -183,45 +188,35 @@ export default function RegisterPage() {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 animate-in slide-in-from-top-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <p className="text-red-800 text-sm font-medium">{error}</p>
-                  </div>
+                <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-red-800 text-sm">{error}</p>
                 </div>
               )}
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className={`w-full py-4 rounded-xl font-semibold text-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 ${
-                  role === 'CUSTOMER'
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/25 hover:shadow-blue-500/40'
-                    : 'bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 shadow-emerald-500/25 hover:shadow-emerald-500/40'
-                } text-white`}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 font-medium"
                 disabled={mutation.isPending}
               >
                 {mutation.isPending ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
                     Creating account...
                   </>
                 ) : (
-                  <>
-                    <UserPlus className="w-5 h-5" />
-                    Create Account
-                  </>
+                  'Create Account'
                 )}
               </Button>
             </form>
 
             {/* Divider */}
-            <div className="relative my-8">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">Or</span>
               </div>
             </div>
 
@@ -229,13 +224,12 @@ export default function RegisterPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full py-4 rounded-xl flex items-center justify-center gap-3 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 font-semibold text-gray-700 shadow-sm hover:shadow-md"
+              className="w-full h-11 border-gray-300 hover:bg-gray-50 font-medium"
               onClick={() => {
-                // Add your Google registration logic here
                 console.log('Google registration clicked');
               }}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -253,18 +247,18 @@ export default function RegisterPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign up with Google
+              Continue with Google
             </Button>
           </CardContent>
         </Card>
 
         {/* Sign In Link */}
         <div className="text-center">
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600">
             Already have an account?{' '}
             <Link
               href="/login"
-              className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+              className="text-blue-600 hover:text-blue-700 font-medium"
             >
               Sign in
             </Link>

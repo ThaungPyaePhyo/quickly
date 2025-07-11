@@ -52,9 +52,6 @@ export default function JobListPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center w-16 h-16 bg-slate-900 rounded-lg mb-4 mx-auto">
-              <Briefcase className="w-8 h-8 text-white" />
-            </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
               Find Jobs
             </h1>
